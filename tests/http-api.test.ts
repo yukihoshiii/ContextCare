@@ -1,0 +1,10 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { POST } from '../src/app/api/brief/verify/route';
+const content=JSON.parse(readFileSync('docs/intric/trial-response.json','utf8'));
+const request=(body:unknown,origin='http://localhost:3000')=>new Request('http://localhost:3000/api/brief/verify',{method:'POST',headers:{'Content-Type':'application/json',host:'localhost:3000',origin},body:JSON.stringify(body)});
+const input={patientId:'P001',role:'doctor',visitReason:'Persistent dizziness',content};
+test('HTTP verification accepts valid response and prevents cache storage',async()=>{const response=await POST(request(input));assert.equal(response.status,200);assert.equal(response.headers.get('cache-control'),'no-store');assert.equal((await response.json()).mode,'manual');});
+test('HTTP rejects cross-origin, invalid origin, unknown patient and oversized body',async()=>{assert.equal((await POST(request(input,'https://untrusted.example'))).status,403);assert.equal((await POST(request(input,'null'))).status,403);assert.equal((await POST(request({...input,patientId:'missing'}))).status,404);assert.equal((await POST(request({...input,content:'a'.repeat(66000)}))).status,413);});
+test('HTTP rejects fabricated evidence rather than silently displaying demo',async()=>{const copy=structuredClone(input);copy.content.facts[0].evidence[0].sourceId='ML-01';assert.equal((await POST(request(copy))).status,422);});

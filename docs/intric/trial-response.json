@@ -1,0 +1,57 @@
+{
+  "facts": [
+    {
+      "title": "Amlodipine dose increased",
+      "text": "Amlodipine was increased from 5 mg to 10 mg daily on 2026-09-12.",
+      "status": "documented",
+      "evidence": [
+        {
+          "sourceId": "EK-02",
+          "quote": "Amlodipine increased from 5 mg to 10 mg daily"
+        }
+      ]
+    },
+    {
+      "title": "Dizziness when standing",
+      "text": "Patient reports intermittent dizziness when standing, documented on 2026-09-20.",
+      "status": "documented",
+      "evidence": [
+        {
+          "sourceId": "EK-03",
+          "quote": "Patient reports intermittent dizziness when standing"
+        }
+      ]
+    },
+    {
+      "title": "Lives alone with weekly family contact",
+      "text": "Patient lives alone. Daughter visits weekly.",
+      "status": "documented",
+      "evidence": [
+        {
+          "sourceId": "EK-04",
+          "quote": "Patient lives alone. Daughter visits weekly."
+        }
+      ]
+    }
+  ],
+  "missing": [
+    {
+      "title": "Symptom onset timing",
+      "status": "not-found",
+      "explanation": "The exact onset date of dizziness symptoms was not recorded.",
+      "question": "When did the dizziness symptoms first begin?"
+    },
+    {
+      "title": "Home blood pressure measurements",
+      "status": "not-found",
+      "explanation": "No home blood pressure readings were available at the time of contact on 2026-09-20.",
+      "question": "Has the patient performed any home blood pressure measurements since then?"
+    },
+    {
+      "title": "Current complete medication list",
+      "status": "unclear",
+      "explanation": "Patient was asked to bring an up-to-date medication list to this visit, but current complete list is not in the provided records.",
+      "question": "What is the patient's current complete medication regimen?"
+    }
+  ]
+}

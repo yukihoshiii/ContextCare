@@ -1,0 +1,36 @@
+node_modules/
+.next/
+.env*
+!.env.example
+data/
+*.tsbuildinfo
+
+# Restricted organizer delivery, interviews, and local trial artifacts.
+данные/
+.DS_Store
+*.sqlite
+*.sqlite-*
+*.db
+*.db-*
+*.parquet
+*.jsonl
+*.csv
+*.zip
+*.pdf
+*.pptx
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.mp4
+*.log
+docs/intric/*.txt
+docs/intric/*.json
+# These regression inputs/results use only our own authored fictional fixtures.
+!docs/intric/trial-response.json
+!docs/intric/nurse-first-response.json
+!docs/intric/nurse-revised-response.json
+!docs/intric/dedicated-trial-response.json
+!docs/intric/injection-trial-input.json
+!docs/intric/injection-trial-response.json
+!docs/intric/injection-trial-corrected.json

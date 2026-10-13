@@ -1,0 +1,72 @@
+{
+  "facts": [
+    {
+      "title": "Discharged on 2026-08-28 following hip surgery",
+      "text": "Patient was discharged following hip surgery on 2026-08-28 and uses a walking aid.",
+      "status": "documented",
+      "evidence": [
+        {
+          "sourceId": "ML-01",
+          "quote": "Patient discharged following hip surgery."
+        },
+        {
+          "sourceId": "ML-01",
+          "quote": "Uses a walking aid."
+        }
+      ]
+    },
+    {
+      "title": "Difficulty with stairs and pain during movement",
+      "text": "On 2026-09-15, patient reported difficulty climbing stairs and pain level of 4 out of 10 during movement.",
+      "status": "documented",
+      "evidence": [
+        {
+          "sourceId": "ML-02",
+          "quote": "Patient reports difficulty climbing stairs. Pain reported as 4 out of 10 during movement."
+        }
+      ]
+    },
+    {
+      "title": "Physiotherapy attendance not confirmed",
+      "text": "Attendance at physiotherapy has not been confirmed as of 2026-09-15.",
+      "status": "documented",
+      "evidence": [
+        {
+          "sourceId": "ML-02",
+          "quote": "Attendance at physiotherapy has not been confirmed."
+        }
+      ]
+    },
+    {
+      "title": "Lives on second floor without lift",
+      "text": "Patient lives with spouse in a second-floor apartment without a lift. Home support assessment is pending as of 2026-10-02.",
+      "status": "documented",
+      "evidence": [
+        {
+          "sourceId": "ML-03",
+          "quote": "Patient lives with spouse in a second-floor apartment without a lift. Home support assessment is pending."
+        }
+      ]
+    }
+  ],
+  "missing": [
+    {
+      "title": "Current pain management",
+      "status": "not-found",
+      "explanation": "Pain during movement is documented but no information about medication or pain management is recorded.",
+      "question": "What pain medication or pain management is currently in use?"
+    },
+    {
+      "title": "Fall history since discharge",
+      "status": "not-found",
+      "explanation": "Reduced mobility and stair difficulty are documented but no falls or near-falls are recorded.",
+      "question": "Has the patient experienced any falls or near-falls since discharge?"
+    },
+    {
+      "title": "Current daily activity capability",
+      "status": "not-found",
+      "explanation": "Stair difficulty is noted but capability with other daily activities such as bathing or dressing is not recorded.",
+      "question": "What support does the patient require with daily activities such as bathing, dressing, or personal care?"
+    }
+  ]
+}

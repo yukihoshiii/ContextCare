@@ -1,0 +1,57 @@
+{
+  "facts": [
+    {
+      "title": "Discharged following hip surgery with walking aid",
+      "text": "Patient was discharged on 2026-08-28 after hip surgery and currently uses a walking aid. Physiotherapy follow-up was recommended at discharge.",
+      "status": "documented",
+      "evidence": [
+        {
+          "sourceId": "ML-01",
+          "quote": "Patient discharged following hip surgery. Uses a walking aid. Physiotherapy follow-up recommended."
+        }
+      ]
+    },
+    {
+      "title": "Difficulty with stairs and pain during movement",
+      "text": "As of 2026-09-15, patient reports difficulty climbing stairs and experiences pain rated as 4 out of 10 during movement.",
+      "status": "documented",
+      "evidence": [
+        {
+          "sourceId": "ML-02",
+          "quote": "Patient reports difficulty climbing stairs. Pain reported as 4 out of 10 during movement."
+        }
+      ]
+    },
+    {
+      "title": "Second-floor apartment without lift access",
+      "text": "Patient lives in a second-floor apartment without a lift. A home support assessment was pending as of 2026-10-02.",
+      "status": "documented",
+      "evidence": [
+        {
+          "sourceId": "ML-03",
+          "quote": "Patient lives with spouse in a second-floor apartment without a lift. Home support assessment is pending."
+        }
+      ]
+    }
+  ],
+  "missing": [
+    {
+      "title": "Physiotherapy attendance and progress",
+      "status": "unclear",
+      "explanation": "Physiotherapy follow-up was recommended at discharge on 2026-08-28, but as of 2026-09-15 attendance had not been confirmed. Current status is unknown.",
+      "question": "Has the patient attended physiotherapy sessions, and if so, what progress or recommendations have been made?"
+    },
+    {
+      "title": "Home support assessment outcome",
+      "status": "not-found",
+      "explanation": "A home support assessment was noted as pending on 2026-10-02. No results or recommendations from this assessment are documented in the provided records.",
+      "question": "What were the findings and recommendations from the home support assessment?"
+    },
+    {
+      "title": "Current pain management approach",
+      "status": "not-found",
+      "explanation": "Pain level of 4 out of 10 during movement was reported on 2026-09-15, but no information about pain management strategies or medications is documented.",
+      "question": "What pain management measures are currently in place, and are they adequate for the patient's needs?"
+    }
+  ]
+}

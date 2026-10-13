@@ -1,0 +1,134 @@
+{
+  "facts": [
+    {
+      "title": "Recent hip surgery with discharge on 2026-08-28",
+      "text": "Patient was discharged following hip surgery approximately six weeks ago. Physiotherapy follow-up was recommended at discharge.",
+      "status": "documented",
+      "evidence": [
+        {
+          "sourceId": "ML-01",
+          "quote": "Patient discharged following hip surgery. Physiotherapy follow-up recommended."
+        }
+      ]
+    },
+    {
+      "title": "Currently uses walking aid for mobility",
+      "text": "Patient uses a walking aid for mobility support.",
+      "status": "documented",
+      "evidence": [
+        {
+          "sourceId": "ML-01",
+          "quote": "Uses a walking aid."
+        }
+      ]
+    },
+    {
+      "title": "Difficulty climbing stairs reported",
+      "text": "Patient reports difficulty climbing stairs as of 2026-09-15.",
+      "status": "documented",
+      "evidence": [
+        {
+          "sourceId": "ML-02",
+          "quote": "Patient reports difficulty climbing stairs."
+        }
+      ]
+    },
+    {
+      "title": "Pain during movement",
+      "text": "Patient reported pain level of 4 out of 10 during movement on 2026-09-15.",
+      "status": "documented",
+      "evidence": [
+        {
+          "sourceId": "ML-02",
+          "quote": "Pain reported as 4 out of 10 during movement."
+        }
+      ]
+    },
+    {
+      "title": "Physiotherapy attendance not confirmed",
+      "text": "As of 2026-09-15, attendance at physiotherapy has not been confirmed despite discharge recommendation.",
+      "status": "documented",
+      "evidence": [
+        {
+          "sourceId": "ML-02",
+          "quote": "Attendance at physiotherapy has not been confirmed."
+        },
+        {
+          "sourceId": "ML-01",
+          "quote": "Physiotherapy follow-up recommended."
+        }
+      ]
+    },
+    {
+      "title": "Lives on second floor without lift access",
+      "text": "Patient lives on the second floor of an apartment building that does not have a lift, which presents a mobility challenge given current difficulties with stairs.",
+      "status": "documented",
+      "evidence": [
+        {
+          "sourceId": "ML-03",
+          "quote": "Patient lives with spouse in a second-floor apartment without a lift."
+        }
+      ]
+    },
+    {
+      "title": "Lives with spouse",
+      "text": "Patient lives with a spouse who may provide or require support.",
+      "status": "documented",
+      "evidence": [
+        {
+          "sourceId": "ML-03",
+          "quote": "Patient lives with spouse in a second-floor apartment without a lift."
+        }
+      ]
+    },
+    {
+      "title": "Home support assessment pending",
+      "text": "A home support assessment is pending as of 2026-10-02.",
+      "status": "documented",
+      "evidence": [
+        {
+          "sourceId": "ML-03",
+          "quote": "Home support assessment is pending."
+        }
+      ]
+    }
+  ],
+  "missing": [
+    {
+      "title": "Current pain management strategy",
+      "status": "not-found",
+      "explanation": "Pain level during movement is documented but no information about current pain medication or management approach is recorded.",
+      "question": "What pain medication or pain management strategies is the patient currently using?"
+    },
+    {
+      "title": "Physiotherapy attendance status and barriers",
+      "status": "unclear",
+      "explanation": "Attendance at physiotherapy was not confirmed as of 2026-09-15, but current status and reasons for non-attendance are not established.",
+      "question": "Has the patient attended physiotherapy since discharge? If not, what barriers prevent attendance?"
+    },
+    {
+      "title": "Activities of daily living capability",
+      "status": "not-found",
+      "explanation": "While stair climbing difficulty is noted, no information about other daily activities such as bathing, dressing, or toilet use is recorded.",
+      "question": "What activities of daily living can the patient perform independently and where does support need to be provided?"
+    },
+    {
+      "title": "Fall history since discharge",
+      "status": "not-found",
+      "explanation": "Given reduced mobility and stair difficulty, fall risk is relevant but no falls or near-falls are documented.",
+      "question": "Has the patient experienced any falls or near-falls since discharge?"
+    },
+    {
+      "title": "Walking aid type and appropriateness",
+      "status": "unclear",
+      "explanation": "A walking aid is documented but the type and whether it is appropriate for current needs is not specified.",
+      "question": "What type of walking aid is being used and has it been assessed as appropriate for the patient's current mobility level?"
+    },
+    {
+      "title": "Home accessibility modifications needed",
+      "status": "unclear",
+      "explanation": "Home accessibility assessment is documented but findings and recommendations are not recorded.",
+      "question": "What specific home modifications or assistive equipment have been identified as needed?"
+    }
+  ]
+}

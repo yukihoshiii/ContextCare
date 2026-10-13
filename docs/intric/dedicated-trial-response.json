@@ -1,0 +1,61 @@
+{
+  "facts": [
+    {
+      "title": "Antihypertensive dose increased prior to dizziness report",
+      "text": "Amlodipine was increased from 5 mg to 10 mg daily on 2026-09-12. Eight days later on 2026-09-20, the patient reported intermittent dizziness when standing.",
+      "status": "documented",
+      "evidence": [
+        {
+          "sourceId": "EK-02",
+          "quote": "Amlodipine increased from 5 mg to 10 mg daily."
+        },
+        {
+          "sourceId": "EK-03",
+          "quote": "Patient reports intermittent dizziness when standing."
+        }
+      ]
+    },
+    {
+      "title": "Chronic hypertension and type 2 diabetes",
+      "text": "The patient has documented hypertension and type 2 diabetes. As of 2026-06-18, medications included metformin 500 mg twice daily and amlodipine 5 mg daily.",
+      "status": "documented",
+      "evidence": [
+        {
+          "sourceId": "EK-01",
+          "quote": "Hypertension and type 2 diabetes documented. Medication list: metformin 500 mg twice daily and amlodipine 5 mg daily."
+        }
+      ]
+    },
+    {
+      "title": "Lives alone with weekly family contact",
+      "text": "The patient lives alone. A daughter visits weekly. The patient has reported difficulty arranging transport to appointments.",
+      "status": "documented",
+      "evidence": [
+        {
+          "sourceId": "EK-04",
+          "quote": "Patient lives alone. Daughter visits weekly. Patient reports difficulty arranging transport to appointments."
+        }
+      ]
+    }
+  ],
+  "missing": [
+    {
+      "title": "Blood pressure readings following medication adjustment",
+      "status": "not-found",
+      "explanation": "Follow-up blood pressure readings were requested on 2026-09-12 after amlodipine was increased. No home blood pressure readings were available at the 2026-09-20 contact.",
+      "question": "Have blood pressure readings been obtained since the amlodipine dose increase?"
+    },
+    {
+      "title": "Exact onset timing of dizziness symptoms",
+      "status": "not-found",
+      "explanation": "The 2026-09-20 record notes that exact symptom onset was not recorded, making it difficult to establish temporal relationship with the medication adjustment on 2026-09-12.",
+      "question": "When did the dizziness symptoms first begin in relation to the amlodipine dose change?"
+    },
+    {
+      "title": "Complete current medication list",
+      "status": "unclear",
+      "explanation": "The patient was asked to bring an up-to-date medication list to this appointment. The most recent documented medications are metformin 500 mg twice daily (2026-06-18) and amlodipine 10 mg daily (2026-09-12), but other medications may have been added or changed.",
+      "question": "What is the patient's complete current medication list?"
+    }
+  ]
+}
