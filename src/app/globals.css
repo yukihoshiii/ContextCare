@@ -52,3 +52,6 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,su
 
 /* Keep the timeline search controls aligned as one compact block. */
 .timeline-search-block{padding:20px 24px 8px}.timeline-search-block .timeline-search{padding:0;gap:10px;line-height:1.5}.timeline-search input{min-width:0;width:100%}.timeline-match-count{margin:10px 0 0;color:var(--muted);font-size:11px;line-height:1.5}.timeline-card .timeline-record:first-child{padding-top:20px}@media(max-width:700px){.timeline-search-block{padding:18px 20px 8px}.timeline-card .filters{padding-left:20px;padding-right:20px}.timeline-card .timeline{padding-left:20px;padding-right:20px}}
+
+/* Local experiment: source-recorded diagnosis names with retained codes. */
+.diagnosis-label{display:inline;line-height:inherit}.diagnosis-code{display:inline-block;margin-left:7px;padding:1px 6px;border-radius:5px;background:var(--soft);color:var(--muted);font-size:.75em;line-height:1.5;vertical-align:baseline;white-space:nowrap}

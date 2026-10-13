@@ -1,3 +1,4 @@
+import {contactMethodLabel} from './contact-methods';
 import type { PatientRecord, BriefContent } from './schema';
 import { noteSections, completeExcerpt } from './note-sections';
 const labels: Record<string,string> = {
@@ -27,8 +28,8 @@ export function displaySourceValue(value:unknown):string {
 }
 
 export function structuredSourceFields(record:PatientRecord) {
- const fields:{label:string;value:string;quote:string}[]=[];
- for(const line of record.text.split('\n')){const match=line.match(/^([^:]+): (.+)$/);if(!match||!labels[match[1]])continue;try{fields.push({label:labels[match[1]],value:displaySourceValue(JSON.parse(match[2])),quote:line});}catch{}}
+ const fields:{label:string;value:string;quote:string;contactMethod?:{name:string;code:string}}[]=[];
+ for(const line of record.text.split('\n')){const match=line.match(/^([^:]+): (.+)$/);if(!match||!labels[match[1]])continue;try{const value=JSON.parse(match[2]);const contactMethod=contactMethodLabel(record.sourceTable,match[1],value);fields.push({label:contactMethod?'Contact method':labels[match[1]],value:displaySourceValue(value),quote:line,...(contactMethod?{contactMethod}:{})});}catch{}}
  return fields;
 }
 export function summarizeSource(record:PatientRecord):BriefContent['facts'][number] {
@@ -48,7 +49,7 @@ export function summarizeSource(record:PatientRecord):BriefContent['facts'][numb
  const medication=record.sourceTable==='clinical/laakitys';
  const qualifier=record.sourceTable==='social/selvitys'?'Assessment documentation; recorded dates do not confirm completion. ':medication?'Documented medication; current use is not confirmed. ':record.sourceTable==='social/kotihoito_suunniteltu_palvelu'?'Planned service; delivery is not confirmed. ':'';
  let text=qualifier.trim();const evidence:BriefContent['facts'][number]['evidence']=[];
- for(const key of keys){const field=fields.get(key)!;const sentence=`${labels[key]}: ${displaySourceValue(field.value)}.`;if(text.length+sentence.length+1>600||field.quote.length>1000)continue;text+=`${text ? '\n' : ''}${sentence}`;evidence.push({sourceId:record.id,quote:field.quote});}
+ for(const key of keys){const field=fields.get(key)!;const method=contactMethodLabel(record.sourceTable,key,field.value);const sentence=method?`Contact method: ${method.name} (${method.code}).`:`${labels[key]}: ${displaySourceValue(field.value)}.`;if(text.length+sentence.length+1>600||field.quote.length>1000)continue;text+=`${text ? '\n' : ''}${sentence}`;evidence.push({sourceId:record.id,quote:field.quote});}
  if(!evidence.length)return {title:record.title,text:'Open the source to review this structured record.',status:'needs-review',evidence:[{sourceId:record.id,quote:record.text.slice(0,500)}]};
  return {title:record.title,text:text.trim(),status:'documented',evidence};
 }
