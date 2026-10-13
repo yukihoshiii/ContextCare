@@ -98,3 +98,17 @@ test('brief HTTP endpoint returns a useful 504 for an Intric timeout',async()=>m
   assert.equal(response.status,504);assert.equal(response.headers.get('cache-control'),'no-store');assert.match((await response.json()).error,/Intric took too long/);
  }finally{if(provider===undefined)delete process.env.AI_PROVIDER;else process.env.AI_PROVIDER=provider;if(store===undefined)delete process.env.PATIENT_STORE;else process.env.PATIENT_STORE=store;}
 }));
+
+
+test('valid JSON code fences are accepted without another generation',async()=>mocked(async set=>{
+ let generations=0;
+ set(async url=>{if(!String(url).endsWith('/sessions/'))return Response.json(setup);generations++;return Response.json({...envelope,answer:'```json'+JSON.stringify(content)+'```'});});
+ assert.deepEqual((await intricBrief(patient,'doctor','Review','2026-10-13','self-authored')).content,content);
+ assert.equal(generations,1);
+}));
+test('broken output triggers a correction instead of rendering raw JSON or markup',async()=>mocked(async set=>{
+ let generations=0;
+ set(async url=>{if(!String(url).endsWith('/sessions/'))return Response.json(setup);generations++;return Response.json({...envelope,answer:generations===1?'{"facts":[{"title":"unfinished}':JSON.stringify(content)});});
+ assert.deepEqual((await intricBrief(patient,'doctor','Review','2026-10-13','self-authored')).content,content);
+ assert.equal(generations,2);
+}));

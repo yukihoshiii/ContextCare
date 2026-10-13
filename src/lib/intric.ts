@@ -6,6 +6,7 @@ import { briefInput, briefSystemPrompt } from './prompt';
 import { AIConfigurationError } from './mistral';
 import { validateEvidence, type Patient, type Role } from './schema';
 import { selectAIContext, modelSourcePatient } from './ai-context';
+import { parseBriefJSON } from './brief-json';
 
 export const INTRIC_ASSISTANT = '1e51e102-deb0-4ede-8c71-9a9115cb3ab5';
 export const INTRIC_MODEL = '42716f71-907d-4cb8-9db9-e3fc66330348';
@@ -82,10 +83,8 @@ export async function intricBrief(patient: Patient, role: Role, visitReason: str
       if (!Array.isArray(envelope[field]) || envelope[field].length) throw new Error('Unexpected external content in Intric response.');
     }
     if (Buffer.byteLength(envelope.answer,'utf8') > 64000) throw new Error('Intric answer too large.');
-    const answer = envelope.answer.trim();
-    const json = answer.match(/^```(?:json)?\s*\n([\s\S]*?)\n```$/)?.[1] ?? answer;
     try {
-      const content = validateEvidence(JSON.parse(json),patient);
+      const content = validateEvidence(parseBriefJSON(envelope.answer),patient);
       if (!content.questions?.length) throw new Error('Missing preparation questions');
       return {content,sessionId:envelope.session_id,modelId:INTRIC_MODEL,sourceCount:context.selectedCount,availableSourceCount:context.availableCount};
     } catch (error) {
