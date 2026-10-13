@@ -30,11 +30,20 @@ export const briefContentSchema = z.object({
 }).strict();
 export type BriefContent = z.infer<typeof briefContentSchema>;
 export type Brief = BriefContent & { patientId: string; role: Role; visitReason: string; asOfDate?: string; mode: 'demo' | 'live' | 'manual'; generatedAt: string; provenance?: {provider:'intric';modelId:string;sessionId:string;sourceCount:number;availableSourceCount:number} };
+export class EvidenceValidationError extends Error {
+  constructor(public readonly reason: 'unknown-source' | 'quote-mismatch', public readonly path: (string | number)[]) {
+    super('Invalid evidence');
+  }
+}
 export function validateEvidence(content: unknown, patient: Patient): BriefContent {
   const parsed = briefContentSchema.parse(content);
-  for (const fact of [...parsed.facts, ...(parsed.questions || [])]) for (const evidence of fact.evidence) {
-    const record = patient.records.find(r => r.id === evidence.sourceId);
-    if (!record || !record.text.includes(evidence.quote)) throw new Error('Invalid evidence');
+  for (const group of ['facts','questions'] as const) {
+    for (const [itemIndex, item] of (parsed[group] || []).entries()) for (const [evidenceIndex, evidence] of item.evidence.entries()) {
+      const record = patient.records.find(r => r.id === evidence.sourceId);
+      const path = [group,itemIndex,'evidence',evidenceIndex];
+      if (!record) throw new EvidenceValidationError('unknown-source',path);
+      if (!record.text.includes(evidence.quote)) throw new EvidenceValidationError('quote-mismatch',path);
+    }
   }
   return parsed;
 }

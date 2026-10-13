@@ -4,7 +4,7 @@ import { assertIntricTransmissionAllowed } from './intric-approval';
 import { readLimitedBody } from './body';
 import { briefInput, briefSystemPrompt } from './prompt';
 import { AIConfigurationError } from './mistral';
-import { validateEvidence, type Patient, type Role } from './schema';
+import { validateEvidence, EvidenceValidationError, type Patient, type Role } from './schema';
 import { selectAIContext, modelSourcePatient } from './ai-context';
 import { parseBriefJSON } from './brief-json';
 
@@ -23,7 +23,7 @@ const endpoint = `https://api.intric.ai/api/v1/assistants/${INTRIC_ASSISTANT}/`;
 // Each correction gets its full budget; client cancellation still stops every step.
 async function intricStep<T>(phase: 'configuration' | 'generation', attempt: number, signal: AbortSignal | undefined, load: (stepSignal: AbortSignal) => Promise<T>): Promise<T> {
   signal?.throwIfAborted();
-  const timeout = AbortSignal.timeout(phase === 'configuration' ? 15000 : 120000);
+  const timeout = AbortSignal.timeout(phase === 'configuration' ? 15000 : 600000);
   const stepSignal = signal ? AbortSignal.any([signal, timeout]) : timeout;
   const started = Date.now();
   try { return await load(stepSignal); }
@@ -88,8 +88,14 @@ export async function intricBrief(patient: Patient, role: Role, visitReason: str
       if (!content.questions?.length) throw new Error('Missing preparation questions');
       return {content,sessionId:envelope.session_id,modelId:INTRIC_MODEL,sourceCount:context.selectedCount,availableSourceCount:context.availableCount};
     } catch (error) {
+      // Log positions and categories only, never model output, IDs or quote text.
+      const diagnostic = error instanceof ZodError ? {kind:'schema',issues:error.issues.slice(0,5).map(issue=>({code:issue.code,path:issue.path}))}
+        : error instanceof EvidenceValidationError ? {kind:error.reason,path:error.path}
+        : error instanceof SyntaxError ? {kind:'invalid-json'}
+        : error instanceof Error && error.message === 'Missing preparation questions' ? {kind:'missing-questions'} : {kind:'invalid-output'};
+      if (process.env.NODE_ENV === 'development') console.warn('Intric draft rejected:', {attempt:attempt+1,willRetry:attempt===0,...diagnostic});
       if (attempt === 1) throw new IntricOutputValidationError();
-      const reason = error instanceof ZodError ? JSON.stringify(error.issues.slice(0,5).map(issue=>({code:issue.code,path:issue.path}))).slice(0,800) : error instanceof SyntaxError ? 'Answer was not valid JSON.' : 'Missing questions or nonmatching source IDs/quotes.';
+      const reason = JSON.stringify(diagnostic).slice(0,800);
       feedback = `\nSERVER VALIDATION FEEDBACK (trusted): A previous attempt failed: ${reason}. Generate a new draft from the original INPUT above. Every fact and question needs 1–5 exact source quotations. Omit unsupported items, especially any fact that merely repeats the visit reason or claims no relevant records. Never return evidence: []. Missing history belongs in missing, not facts. Copy a short exact contiguous quote with its correct source ID, without translation or joining passages. Include 1–5 source-linked patient-facing questions. Return only the valid JSON object.\n`;
     }
   }

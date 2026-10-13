@@ -74,7 +74,7 @@ test('correction has a fresh generation deadline even when the first deadline ex
   return Response.json({...envelope,answer:JSON.stringify(generations===1?{...content,facts:[{...content.facts[0],evidence:[]}]}:content)});
  });
  assert.deepEqual((await intricBrief(patient,'doctor','knee pain','2026-10-13','self-authored')).content,content);
- assert.deepEqual(deadlines.map(d=>d.ms),[15000,120000,15000,120000]);
+ assert.deepEqual(deadlines.map(d=>d.ms),[15000,600000,15000,600000]);
  assert.equal(generations,2);
 }));
 test('generation timeout is explicit and does not send another patient request',async()=>mocked(async set=>{
@@ -111,4 +111,30 @@ test('broken output triggers a correction instead of rendering raw JSON or marku
  set(async url=>{if(!String(url).endsWith('/sessions/'))return Response.json(setup);generations++;return Response.json({...envelope,answer:generations===1?'{"facts":[{"title":"unfinished}':JSON.stringify(content)});});
  assert.deepEqual((await intricBrief(patient,'doctor','Review','2026-10-13','self-authored')).content,content);
  assert.equal(generations,2);
+}));
+
+test('retry diagnostics identify the rejection without leaking patient data or model output',async t=>mocked(async set=>{
+ const env:Record<string,string|undefined>=process.env;const previous=env.NODE_ENV;env.NODE_ENV='development';
+ const logs:unknown[][]=[];
+ t.mock.method(console,'warn',(...args:unknown[])=>{logs.push(args);});
+ t.mock.method(console,'info',()=>{});
+ try {
+  const badAnswers=[
+   {answer:'{"private":"UNTRUSTED_PROVIDER_OUTPUT',kind:'invalid-json'},
+   {answer:JSON.stringify({...content,facts:[{...content.facts[0],evidence:[{sourceId:'private-source-id',quote:'UNTRUSTED_PROVIDER_OUTPUT'}]}]}),kind:'unknown-source'},
+   {answer:JSON.stringify({...content,facts:[{...content.facts[0],evidence:[{sourceId:patient.records[2].id,quote:'UNTRUSTED_PROVIDER_OUTPUT'}]}]}),kind:'quote-mismatch'},
+   {answer:JSON.stringify({...content,facts:[{...content.facts[0],evidence:[]}]}),kind:'schema'},
+   {answer:JSON.stringify({...content,questions:undefined}),kind:'missing-questions'},
+  ];
+  for(const {answer,kind} of badAnswers){
+   let generations=0;
+   set(async url=>{if(!String(url).endsWith('/sessions/'))return Response.json(setup);return Response.json({...envelope,answer:++generations===1?answer:JSON.stringify(content)});});
+   await intricBrief(patient,'doctor','Review','2026-10-13','self-authored');
+   assert.equal(generations,2);
+   const diagnostic=logs.at(-1)![1] as Record<string,unknown>;
+   assert.equal(diagnostic.kind,kind);assert.equal(diagnostic.attempt,1);assert.equal(diagnostic.willRetry,true);
+  }
+  const text=JSON.stringify(logs);
+  for(const privateText of ['UNTRUSTED_PROVIDER_OUTPUT','private-source-id',patient.records[2].text,'test-key'])assert.ok(!text.includes(privateText));
+ }finally{if(previous===undefined)delete env.NODE_ENV;else env.NODE_ENV=previous;}
 }));
