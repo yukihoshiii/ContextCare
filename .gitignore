@@ -34,3 +34,7 @@ docs/intric/*.json
 !docs/intric/injection-trial-input.json
 !docs/intric/injection-trial-response.json
 !docs/intric/injection-trial-corrected.json
+
+# Personal project notes stay local.
+docs/**/*.md
+docs/**/*.markdown

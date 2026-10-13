@@ -18,7 +18,7 @@ npm run dev
 
 Open [localhost:3000](http://localhost:3000). Choose a patient, role and visit reason to explore the workspace.
 
-A fresh checkout uses three self-authored fictional patients and a source-based demo mode. Live AI generation uses Intric Swedish Hosted and requires local server-side configuration. Copy `.env.example` to `.env.local` and follow the [Intric setup guide](docs/intric/API-INTEGRATION.md).
+A fresh checkout uses three self-authored fictional patients and a source-based demo mode. Live AI generation uses Intric Swedish Hosted and requires local server-side configuration. Copy `.env.example` to `.env.local`, set `AI_PROVIDER=intric` and add your `INTRIC_API_KEY`.
 
 ## Development
 
@@ -30,5 +30,3 @@ npm run build
 ## Data and limitations
 
 API keys and the restricted organizer dataset are excluded from this repository. AI drafts require professional review; source checks do not establish clinical correctness. This prototype has no production authentication or patient-access controls.
-
-See [project status](docs/PROJECT-STATUS.md) and [data coverage](docs/DATA-COVERAGE.md) for details.
