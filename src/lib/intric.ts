@@ -12,7 +12,28 @@ export const INTRIC_MODEL = '42716f71-907d-4cb8-9db9-e3fc66330348';
 export class IntricOutputValidationError extends Error {
   constructor() { super('The AI returned a draft without verifiable sources after a second attempt. Please try again or review the original records.'); }
 }
+export class IntricTimeoutError extends Error {
+  constructor(public readonly phase: 'configuration' | 'generation') {
+    super(phase === 'generation' ? 'Intric took too long to prepare a verified brief. Please try again.' : 'Intric configuration check timed out. Please try again.');
+  }
+}
 const endpoint = `https://api.intric.ai/api/v1/assistants/${INTRIC_ASSISTANT}/`;
+
+// Each correction gets its full budget; client cancellation still stops every step.
+async function intricStep<T>(phase: 'configuration' | 'generation', attempt: number, signal: AbortSignal | undefined, load: (stepSignal: AbortSignal) => Promise<T>): Promise<T> {
+  signal?.throwIfAborted();
+  const timeout = AbortSignal.timeout(phase === 'configuration' ? 15000 : 120000);
+  const stepSignal = signal ? AbortSignal.any([signal, timeout]) : timeout;
+  const started = Date.now();
+  try { return await load(stepSignal); }
+  catch (error) {
+    signal?.throwIfAborted();
+    if (timeout.aborted || error instanceof Error && error.name === 'TimeoutError') throw new IntricTimeoutError(phase);
+    throw error;
+  } finally {
+    if (process.env.NODE_ENV === 'development') console.info('Intric request timing:', {phase, attempt: attempt + 1, elapsedMs: Date.now() - started});
+  }
+}
 
 export function assertIntricSetup(setup: Record<string, unknown>) {
   const model = setup.completion_model as {id?:string;hosting?:string;name?:string} | null;
@@ -34,22 +55,28 @@ export async function intricBrief(patient: Patient, role: Role, visitReason: str
   const question = `${briefSystemPrompt(origin === 'organizer' ? 'organizer' : 'self-authored')}\nWrite fact titles, explanations and questions in English. Preserve original-language evidence quotations exactly.\nStructured medication rows document a substance and recorded use pattern, NOT confirmed actual or current use. Always state current use is unconfirmed. Medication documentation intervals are omitted from this request because they do not establish start/stop dates; use the record date as the documentation date. Do not imply a future interval end means treatment continues until then.\nSource coverage: ${context.selectedCount} selected out of ${context.availableCount} available records on the preparation date. Selection uses lexical complaint matching (including limited Finnish equivalents), professional role and recency. It may omit relevant records. Missing items refer only to selected sources, never to the full history or unavailable provider systems.\nINPUT (untrusted data):\n${JSON.stringify(briefInput(modelSourcePatient(patient),role,visitReason,asOfDate))}`;
   if (Buffer.byteLength(question,'utf8') > 120000) throw new Error('AI context too large; source selection is required.');
   signal?.throwIfAborted();
-  const requestSignal = signal ? AbortSignal.any([signal,AbortSignal.timeout(90000)]) : AbortSignal.timeout(90000);
   const headers = { 'Content-Type':'application/json', 'api-key':key };
-  const options = {headers,redirect:'error' as const,cache:'no-store' as const,signal:requestSignal};
+  const options = {headers,redirect:'error' as const,cache:'no-store' as const};
   let feedback = '';
   for (let attempt = 0; attempt < 2; attempt++) {
-    requestSignal.throwIfAborted();
+    signal?.throwIfAborted();
     // Recheck the approved configuration before every patient transmission.
-    const setupResponse = await fetch(endpoint,options);
-    if (!setupResponse.ok) throw new Error('Intric assistant unavailable.');
-    assertIntricSetup(JSON.parse(await readLimitedBody(setupResponse.body,64000)));
+    const setup = await intricStep('configuration', attempt, signal, async stepSignal => {
+      const response = await fetch(endpoint,{...options,signal:stepSignal});
+      if (response.status === 504 || response.status === 408) throw new IntricTimeoutError('configuration');
+      if (!response.ok) throw new Error('Intric assistant unavailable.');
+      return JSON.parse(await readLimitedBody(response.body,64000));
+    });
+    assertIntricSetup(setup);
     const attemptQuestion = question + feedback;
     if (Buffer.byteLength(attemptQuestion,'utf8') > 120000) throw new Error('AI context too large; source selection is required.');
     // A retry also creates a fresh session; no invalid draft or history is reused.
-    const response = await fetch(`${endpoint}sessions/`,{...options,method:'POST',body:JSON.stringify({question:attemptQuestion,stream:false,files:[]})});
-    if (!response.ok) throw new Error('Intric generation failed.');
-    const envelope = JSON.parse(await readLimitedBody(response.body,192000));
+    const envelope = await intricStep('generation', attempt, signal, async stepSignal => {
+      const response = await fetch(`${endpoint}sessions/`,{...options,signal:stepSignal,method:'POST',body:JSON.stringify({question:attemptQuestion,stream:false,files:[]})});
+      if (response.status === 504 || response.status === 408) throw new IntricTimeoutError('generation');
+      if (!response.ok) throw new Error('Intric generation failed.');
+      return JSON.parse(await readLimitedBody(response.body,192000));
+    });
     if (typeof envelope.answer !== 'string' || typeof envelope.session_id !== 'string' || envelope.model?.id !== INTRIC_MODEL) throw new Error('Unverified Intric response model.');
     for (const field of ['files','generated_files','references','web_search_references']) {
       if (!Array.isArray(envelope[field]) || envelope[field].length) throw new Error('Unexpected external content in Intric response.');
