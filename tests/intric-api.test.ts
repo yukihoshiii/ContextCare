@@ -138,3 +138,10 @@ test('retry diagnostics identify the rejection without leaking patient data or m
   for(const privateText of ['UNTRUSTED_PROVIDER_OUTPUT','private-source-id',patient.records[2].text,'test-key'])assert.ok(!text.includes(privateText));
  }finally{if(previous===undefined)delete env.NODE_ENV;else env.NODE_ENV=previous;}
 }));
+
+test('a valid brief with gap questions needs no extra sourced-question generation',async()=>mocked(async set=>{
+ let generations=0;const draft={...content,questions:[],missing:[{title:'Prior care',status:'not-found',explanation:'Prior care is not established in selected records.',question:'Have you had examinations or treatment for this complaint?'}]};
+ set(async url=>{if(!String(url).endsWith('/sessions/'))return Response.json(setup);generations++;return Response.json({...envelope,answer:JSON.stringify(draft)});});
+ const result=await intricBrief(patient,'doctor','Review','2026-10-14','self-authored');
+ assert.deepEqual(result.content,draft);assert.equal(generations,1);
+}));

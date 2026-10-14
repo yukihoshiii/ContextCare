@@ -22,7 +22,7 @@ export const briefProvider: BriefProvider = {
     else if (provider === 'intric') {
       const result = await intricBrief(patient,role,visitReason,asOfDate,(await getRepository()).origin,signal);
       content = result.content;
-      provenance = {provider:'intric' as const,modelId:result.modelId,sessionId:result.sessionId,sourceCount:result.sourceCount,availableSourceCount:result.availableSourceCount};
+      provenance = {provider:'intric' as const,modelId:result.modelId,sessionId:result.sessionId,sourceCount:result.sourceCount,availableSourceCount:result.availableSourceCount,...(result.restoredSourceExcerpts?{restoredSourceExcerpts:result.restoredSourceExcerpts}:{})};
     }
     else {
       if (!url) throw new AIConfigurationError('AI gateway URL is missing.');

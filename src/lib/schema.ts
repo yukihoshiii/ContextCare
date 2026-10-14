@@ -25,11 +25,11 @@ export const preparationQuestionSchema = z.object({
 }).strict();
 export const briefContentSchema = z.object({
   facts: z.array(z.object({ title: z.string().min(1).max(100), text: z.string().min(1).max(600), status: z.enum(['documented', 'needs-review']), evidence: z.array(evidenceSchema).min(1).max(5) }).strict()).min(1).max(12),
-  questions: z.array(preparationQuestionSchema).min(1).max(5).optional(),
+  questions: z.array(preparationQuestionSchema).max(5).optional(),
   missing: z.array(z.object({ title: z.string().min(1).max(150), status: z.enum(['not-found', 'unclear']), explanation: z.string().min(1).max(500), question: z.string().min(1).max(250) }).strict()).max(10),
 }).strict();
 export type BriefContent = z.infer<typeof briefContentSchema>;
-export type Brief = BriefContent & { patientId: string; role: Role; visitReason: string; asOfDate?: string; mode: 'demo' | 'live' | 'manual'; generatedAt: string; provenance?: {provider:'intric';modelId:string;sessionId:string;sourceCount:number;availableSourceCount:number} };
+export type Brief = BriefContent & { patientId: string; role: Role; visitReason: string; asOfDate?: string; mode: 'demo' | 'live' | 'manual'; generatedAt: string; provenance?: {provider:'intric';modelId:string;sessionId:string;sourceCount:number;availableSourceCount:number;restoredSourceExcerpts?:number} };
 export class EvidenceValidationError extends Error {
   constructor(public readonly reason: 'unknown-source' | 'quote-mismatch', public readonly path: (string | number)[]) {
     super('Invalid evidence');

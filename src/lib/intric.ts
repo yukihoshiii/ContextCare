@@ -4,8 +4,9 @@ import { assertIntricTransmissionAllowed } from './intric-approval';
 import { readLimitedBody } from './body';
 import { briefInput, briefSystemPrompt } from './prompt';
 import { AIConfigurationError } from './mistral';
-import { validateEvidence, EvidenceValidationError, type Patient, type Role } from './schema';
+import { EvidenceValidationError, type Patient, type Role } from './schema';
 import { selectAIContext, modelSourcePatient } from './ai-context';
+import {validateIntricDraft} from './structured-citations';
 import { parseBriefJSON } from './brief-json';
 
 export const INTRIC_ASSISTANT = '1e51e102-deb0-4ede-8c71-9a9115cb3ab5';
@@ -84,9 +85,9 @@ export async function intricBrief(patient: Patient, role: Role, visitReason: str
     }
     if (Buffer.byteLength(envelope.answer,'utf8') > 64000) throw new Error('Intric answer too large.');
     try {
-      const content = validateEvidence(parseBriefJSON(envelope.answer),patient);
-      if (!content.questions?.length) throw new Error('Missing preparation questions');
-      return {content,sessionId:envelope.session_id,modelId:INTRIC_MODEL,sourceCount:context.selectedCount,availableSourceCount:context.availableCount};
+      const {content,restoredSourceExcerpts} = validateIntricDraft(parseBriefJSON(envelope.answer),patient);
+      if (!content.questions?.length && !content.missing.length) throw new Error('Missing preparation questions');
+      return {content,restoredSourceExcerpts,sessionId:envelope.session_id,modelId:INTRIC_MODEL,sourceCount:context.selectedCount,availableSourceCount:context.availableCount};
     } catch (error) {
       // Log positions and categories only, never model output, IDs or quote text.
       const diagnostic = error instanceof ZodError ? {kind:'schema',issues:error.issues.slice(0,5).map(issue=>({code:issue.code,path:issue.path}))}
@@ -96,7 +97,7 @@ export async function intricBrief(patient: Patient, role: Role, visitReason: str
       if (process.env.NODE_ENV === 'development') console.warn('Intric draft rejected:', {attempt:attempt+1,willRetry:attempt===0,...diagnostic});
       if (attempt === 1) throw new IntricOutputValidationError();
       const reason = JSON.stringify(diagnostic).slice(0,800);
-      feedback = `\nSERVER VALIDATION FEEDBACK (trusted): A previous attempt failed: ${reason}. Generate a new draft from the original INPUT above. Every fact and question needs 1–5 exact source quotations. Omit unsupported items, especially any fact that merely repeats the visit reason or claims no relevant records. Never return evidence: []. Missing history belongs in missing, not facts. Copy a short exact contiguous quote with its correct source ID, without translation or joining passages. Include 1–5 source-linked patient-facing questions. Return only the valid JSON object.\n`;
+      feedback = `\nSERVER VALIDATION FEEDBACK (trusted): A previous attempt failed: ${reason}. Generate a new draft from the original INPUT above. Every fact and question needs 1–5 exact source quotations. Omit unsupported items, especially any fact that merely repeats the visit reason or claims no relevant records. Never return evidence: []. Missing history belongs in missing, not facts. Copy a short exact contiguous quote with its correct source ID, without translation or joining passages. Include source-linked questions when supported; questions may be [] if missing includes useful clarification questions. Return only the valid JSON object.\n`;
     }
   }
   throw new IntricOutputValidationError();
